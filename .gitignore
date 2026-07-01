@@ -1,0 +1,10 @@
+.DS_Store
+_surge/
+_pwa/
+*.zip
+portfolio.zip
+novel-deploy.zip
+pm-deploy.zip
+pwa-deploy.zip
+Screenshot*.png
+AasthaSaini_resume*.md
