@@ -474,8 +474,36 @@ function tickPM(id,fromDate){
   const log=fromDate?S.logs[fromDate]:getLog(today());
   if(!log)return;
   log.pm[id]=!log.pm[id];
+  const nowDone=log.pm[id];
+
+  // Sync progress trackers when checking off from Today tab
+  if(id==='hellopm-session'){
+    if(nowDone){
+      const idx=nextHelloPM();
+      if(idx<60&&!S.helloPMDone.includes(idx)){S.helloPMDone.push(idx);log._hpIdx=idx;}
+    } else {
+      if(log._hpIdx!=null){S.helloPMDone=S.helloPMDone.filter(i=>i!==log._hpIdx);delete log._hpIdx;}
+    }
+  }
+  if(id==='lp-session'){
+    if(nowDone){
+      const idx=nextLP();
+      if(idx<16&&!S.lpDone.includes(idx)){S.lpDone.push(idx);log._lpIdx=idx;}
+    } else {
+      if(log._lpIdx!=null){S.lpDone=S.lpDone.filter(i=>i!==log._lpIdx);delete log._lpIdx;}
+    }
+  }
+  if(id==='noob-session'){
+    if(nowDone){
+      const idx=nextNoob();
+      if(idx<45&&!S.noobDone.includes(idx)){S.noobDone.push(idx);log._noobIdx=idx;}
+    } else {
+      if(log._noobIdx!=null){S.noobDone=S.noobDone.filter(i=>i!==log._noobIdx);delete log._noobIdx;}
+    }
+  }
+
   save();
-  showToast(log.pm[id]?'✅ PM task done!':'↩️ Unmarked');
+  showToast(nowDone?'✅ PM task done!':'↩️ Unmarked');
   render();
 }
 
