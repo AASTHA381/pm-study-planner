@@ -730,7 +730,7 @@ function render(){
   // 2nd college article — optional toggle
   pH+=`<div class="tog-row" style="margin-top:10px">
     <span class="tog-label">📘 Had 2 lectures today? Add 2nd article</span>
-    <label class="sw" onclick="toggleC2on()">
+    <label class="sw" onclick="event.preventDefault();toggleC2on()">
       <input type="checkbox" ${log.c2on?'checked':''} readonly>
       <span class="sl2"></span>
     </label>
