@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YatraYatri — Business Investment Planner</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#06090f; --surface:#0d1525; --card:#111c30; --card2:#162036;
+      --border:rgba(255,255,255,0.07); --text:#e2ecff; --muted:#7a90b5;
+      --primary:#4f8ef7; --saffron:#f97316; --green:#22c55e;
+      --red:#ef4444; --yellow:#eab308; --purple:#a855f7; --teal:#14b8a6;
+      --col-ops:#f97316; --col-mkt:#3b82f6; --col-hr:#22c55e;
+      --col-legal:#a855f7; --col-tech:#14b8a6; --col-train:#eab308; --col-emg:#ef4444;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(79,142,247,.07) 0%,transparent 70%),
+                 radial-gradient(ellipse 50% 30% at 85% 90%,rgba(249,115,22,.05) 0%,transparent 70%);}
+    .wrap{max-width:1200px;margin:0 auto;padding:0 20px;position:relative;z-index:1;}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:200;background:rgba(6,9,15,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:13px 0;}
+    .hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#f97316,#dc2626);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 15px rgba(249,115,22,.3);}
+    .logo-text h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1.2;}
+    .logo-text p{font-size:.63rem;color:var(--saffron);letter-spacing:1.2px;text-transform:uppercase;}
+    .hdr-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .badge-pill{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--saffron);padding:5px 12px;border-radius:20px;font-size:.7rem;font-weight:600;}
+    .btn-sm{background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);color:var(--primary);padding:7px 14px;border-radius:8px;font-family:'Poppins',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;}
+    .btn-sm:hover{background:rgba(79,142,247,.2);}
+    .btn-reset{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);}
+    .btn-reset:hover{background:rgba(255,255,255,.09);color:var(--text);}
+
+    /* SECTIONS */
+    .section{padding:34px 0;}
+    .sec-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .sec-title h3{font-size:1.12rem;font-weight:700;}
+    .sec-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+    .divider{flex:1;height:1px;background:var(--border);}
+
+    /* HERO */
+    .hero{padding:48px 0 28px;text-align:center;}
+    .hero-tag{display:inline-block;margin-bottom:16px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);color:var(--primary);padding:5px 16px;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+    .hero h2{font-size:clamp(1.7rem,4vw,2.7rem);font-weight:800;line-height:1.15;margin-bottom:12px;background:linear-gradient(135deg,#fff 30%,#f97316 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero p{color:var(--muted);max-width:580px;margin:0 auto 20px;font-size:.92rem;}
+    .trek-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+    .tpill{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:.76rem;color:var(--muted);}
+    .tpill.on{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--saffron);}
+
+    /* INVEST INPUT */
+    .inv-card{background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid rgba(249,115,22,.25);border-radius:20px;padding:34px 24px;text-align:center;box-shadow:0 0 60px rgba(249,115,22,.06);}
+    .inv-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+    .inv-field-wrap{position:relative;display:inline-flex;align-items:center;margin-bottom:16px;}
+    .inv-sym{position:absolute;left:18px;font-size:2rem;font-weight:700;color:var(--saffron);pointer-events:none;}
+    #investAmt{background:rgba(255,255,255,.04);border:2px solid rgba(249,115,22,.35);border-radius:14px;color:#fff;font-size:clamp(1.5rem,5vw,2.3rem);font-weight:800;font-family:'Poppins',sans-serif;padding:14px 22px 14px 56px;width:clamp(250px,60vw,460px);outline:none;transition:border-color .3s,box-shadow .3s;}
+    #investAmt:focus{border-color:var(--saffron);box-shadow:0 0 24px rgba(249,115,22,.2);}
+    .presets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
+    .preset{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);padding:6px 13px;border-radius:8px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:.78rem;transition:all .2s;}
+    .preset:hover{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--saffron);}
+
+    /* HEALTH SCORE */
+    .health-wrap{margin-top:4px;}
+    .health-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+    .health-label{font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+    .health-score-num{font-size:1rem;font-weight:800;}
+    .health-grade{font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:10px;margin-left:6px;}
+    .health-bar-bg{background:rgba(255,255,255,.06);border-radius:8px;height:10px;overflow:hidden;}
+    .health-bar-fill{height:100%;border-radius:8px;transition:width .5s ease,background .5s ease;}
+    .health-tips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+    .h-tip{font-size:.66rem;padding:3px 9px;border-radius:10px;font-weight:500;}
+
+    /* ALERTS */
+    .alerts-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;}
+    .alert-cnt{font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:10px;margin-left:8px;}
+    #alertsList{display:flex;flex-direction:column;gap:7px;}
+    .a-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;font-size:.76rem;line-height:1.5;}
+    .a-item.err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);}
+    .a-item.warn{background:rgba(234,179,8,.07);border:1px solid rgba(234,179,8,.18);}
+    .a-item.ok{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);}
+    .a-item .a-ico{flex-shrink:0;font-size:1rem;margin-top:1px;}
+    .a-item.err .a-ico{color:var(--red);} .a-item.warn .a-ico{color:var(--yellow);} .a-item.ok .a-ico{color:var(--green);}
+    .no-alerts{text-align:center;color:var(--muted);font-size:.78rem;padding:10px 0;}
+
+    /* OVERVIEW */
+    .ov-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+    @media(max-width:820px){.ov-grid{grid-template-columns:1fr;}}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+    .chart-card h4{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+    .chart-wrap{position:relative;height:250px;}
+    .chart-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+    .chart-center-val{font-size:1.35rem;font-weight:800;color:#fff;}
+    .chart-center-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;}
+    .alloc-total{text-align:center;margin-top:10px;}
+    .alloc-num{font-size:1.15rem;font-weight:700;}
+    .alloc-num.ok{color:var(--green);} .alloc-num.warn{color:var(--yellow);} .alloc-num.over{color:var(--red);}
+    .alloc-sub{font-size:.7rem;color:var(--muted);}
+    .ov-warn{display:none;margin-top:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:8px;padding:8px 12px;font-size:.72rem;}
+    .ov-warn.show{display:block;}
+    .sc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    @media(max-width:480px){.sc-grid{grid-template-columns:1fr;}}
+    .sc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px;transition:border-color .2s;}
+    .sc:hover{border-color:rgba(255,255,255,.12);}
+    .sc-label{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+    .sc-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
+    .sc-val{font-size:.98rem;font-weight:700;color:#fff;}
+    .sc-hint{font-size:.65rem;color:var(--muted);margin-top:3px;}
+    .sc-wide{grid-column:span 2;}
+
+    /* ALLOC SLIDERS */
+    .info-box{background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.18);color:var(--primary);border-radius:10px;padding:10px 16px;font-size:.76rem;margin-bottom:16px;}
+    .alloc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;}
+    .alloc-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s;}
+    .alloc-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.11);}
+    .alloc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+    .alloc-left{display:flex;align-items:center;gap:10px;}
+    .a-icon-box{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+    .a-title{font-size:.88rem;font-weight:600;} .a-sub{font-size:.66rem;color:var(--muted);}
+    .alloc-right{text-align:right;}
+    .a-inr{font-size:1rem;font-weight:700;color:#fff;}
+    .a-badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:5px;margin-top:3px;display:inline-block;}
+    input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;margin-top:4px;}
+    input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5);transition:transform .15s;}
+    input[type="range"]:hover::-webkit-slider-thumb{transform:scale(1.25);}
+    .sl-labels{display:flex;justify-content:space-between;font-size:.63rem;color:var(--muted);margin-top:4px;}
+    .sub-list{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+    .sub-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;}
+    .sub-name{font-size:.71rem;color:var(--muted);display:flex;align-items:center;gap:5px;}
+    .sub-name::before{content:'›';color:var(--primary);font-size:.9rem;}
+    .sub-val{font-size:.71rem;font-weight:600;color:var(--text);}
+
+    /* FOOD TABLE */
+    .food-table{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+    .food-table table{width:100%;border-collapse:collapse;}
+    .food-table th{background:var(--card2);padding:10px 16px;font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);text-align:left;}
+    .food-table td{padding:10px 16px;font-size:.78rem;border-top:1px solid var(--border);}
+
+    /* STAFF TABLE */
+    .staff-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    .staff-wrap table{width:100%;border-collapse:collapse;}
+    .staff-wrap th{background:var(--card2);padding:11px 14px;font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);text-align:left;}
+    .staff-wrap tr{border-top:1px solid var(--border);}
+    .staff-wrap td{padding:11px 14px;font-size:.81rem;vertical-align:middle;}
+    .staff-wrap tr:hover td{background:rgba(255,255,255,.012);}
+    .role-cell{display:flex;align-items:center;gap:10px;}
+    .role-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .role-name{font-weight:600;font-size:.81rem;} .role-desc{font-size:.64rem;color:var(--muted);}
+    .cnt-input,.sal-input{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;border-radius:7px;outline:none;text-align:center;transition:border-color .2s;}
+    .cnt-input{font-size:.95rem;padding:5px 6px;width:52px;}
+    .sal-input{font-size:.8rem;padding:5px 7px;width:90px;}
+    .cnt-input:focus,.sal-input:focus{border-color:var(--primary);}
+    .sal-green{font-weight:600;color:var(--green);font-size:.84rem;}
+    .sal-white{font-weight:500;font-size:.81rem;}
+    .total-row td{background:rgba(34,197,94,.05)!important;border-top:1.5px solid rgba(34,197,94,.2)!important;font-weight:700;}
+    .staff-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+    @media(max-width:600px){.staff-sum{grid-template-columns:1fr;}}
+    .ss-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+    .ss-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+    .ss-val{font-size:1.2rem;font-weight:700;margin-top:4px;}
+    .warn-box{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);color:#fde68a;border-radius:10px;padding:10px 16px;font-size:.75rem;margin-top:14px;display:none;}
+
+    /* BREAK-EVEN */
+    .be-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    @media(max-width:768px){.be-grid{grid-template-columns:1fr;}}
+    .be-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+    .be-card h4{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+    .trek-preset-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
+    @media(max-width:500px){.trek-preset-btns{grid-template-columns:repeat(2,1fr);}}
+    .tp-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);padding:9px 8px;border-radius:9px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-align:center;transition:all .2s;line-height:1.4;}
+    .tp-btn:hover,.tp-btn.active{border-color:var(--saffron);background:rgba(249,115,22,.1);color:var(--saffron);}
+    .tp-btn.active-custom{border-color:var(--primary);background:rgba(79,142,247,.1);color:var(--primary);}
+    .form-grp{margin-bottom:14px;}
+    .form-lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;}
+    .form-inp{background:rgba(255,255,255,.04);border:1px solid var(--border);color:#fff;font-family:'Poppins',sans-serif;font-size:.92rem;font-weight:600;padding:9px 14px;border-radius:9px;width:100%;outline:none;transition:border-color .2s;}
+    .form-inp:focus{border-color:var(--primary);}
+    .form-hint{font-size:.66rem;color:var(--muted);margin-top:4px;}
+    .res-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+    .res-item:last-child{border-bottom:none;}
+    .res-lbl{font-size:.77rem;color:var(--muted);}
+    .res-val{font-size:.87rem;font-weight:700;color:#fff;}
+    .res-val.big{font-size:1.1rem;}
+    .res-val.pos{color:var(--green);} .res-val.neg{color:var(--red);} .res-val.warn{color:var(--yellow);}
+
+    /* 12-MONTH PROJECTION */
+    .proj-controls{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+    .toggle-wrap{display:flex;align-items:center;gap:9px;}
+    .toggle{position:relative;width:42px;height:22px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.12);border-radius:11px;cursor:pointer;transition:.3s;}
+    .toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+    .toggle input:checked+.toggle-slider{background:var(--saffron);}
+    .toggle input:checked+.toggle-slider::before{transform:translateX(20px);}
+    .toggle-lbl{color:var(--muted);font-size:.77rem;}
+    .proj-chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+    .proj-chart-wrap canvas{max-height:280px;}
+    .proj-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow-x:auto;}
+    .proj-table-wrap table{width:100%;border-collapse:collapse;min-width:700px;}
+    .proj-table-wrap th{background:var(--card2);padding:10px 14px;font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);text-align:right;}
+    .proj-table-wrap th:first-child{text-align:left;}
+    .proj-table-wrap td{padding:10px 14px;font-size:.74rem;text-align:right;border-top:1px solid var(--border);}
+    .proj-table-wrap td:first-child{text-align:left;font-weight:600;}
+    .proj-table-wrap tr:hover td{background:rgba(255,255,255,.012);}
+    .proj-pos{color:var(--green)!important;font-weight:700;} .proj-neg{color:var(--red)!important;font-weight:700;}
+    .proj-be-row td{background:rgba(249,115,22,.06)!important;border-top:1px solid rgba(249,115,22,.25)!important;}
+    .proj-be-badge{display:inline-block;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);color:var(--saffron);font-size:.6rem;padding:1px 7px;border-radius:6px;margin-left:6px;}
+
+    /* METRICS */
+    .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;}
+    .metric-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:transform .2s,border-color .2s;}
+    .metric-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.12);}
+    .m-icon{font-size:1.65rem;margin-bottom:8px;} .m-val{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+    .m-lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+
+    /* RECOMMENDATIONS */
+    .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:14px;}
+    .rec-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .3s,box-shadow .3s;}
+    .rec-card.highlighted{border-color:rgba(249,115,22,.4);box-shadow:0 0 20px rgba(249,115,22,.07);}
+    .rec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .rec-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .rec-title{font-size:.86rem;font-weight:700;}
+    .rec-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:8px;margin-left:auto;white-space:nowrap;}
+    .rec-badge.urgent{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+    .rec-badge.good{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+    .rec-ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+    .rec-ul li{font-size:.73rem;color:var(--muted);padding-left:13px;position:relative;line-height:1.5;}
+    .rec-ul li::before{content:'→';position:absolute;left:0;color:var(--primary);font-size:.76rem;}
+    .rec-ul li strong{color:var(--text);font-weight:600;}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border);padding:26px 0;text-align:center;color:var(--muted);font-size:.73rem;}
+
+    /* POP ANIMATION */
+    @keyframes pop{0%{opacity:.25;transform:scale(.94) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+    .pop{animation:pop .2s ease;}
+
+    /* UTILS */
+    .c-saffron{color:var(--saffron);} .c-green{color:var(--green);} .c-blue{color:var(--primary);}
+    .c-red{color:var(--red);} .c-yellow{color:var(--yellow);}
+
+    @media(max-width:600px){.hdr-right .badge-pill{display:none;}#investAmt{font-size:1.4rem;}.hdr-right .btn-reset{display:none;}}
+    @media print{body{background:#fff;color:#000;}header{position:relative;background:#fff;}.btn-sm{display:none;}.alloc-card,.rec-card{break-inside:avoid;}}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--card2);border-radius:3px;}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="wrap hdr">
+    <a class="logo" href="#">
+      <div class="logo-box">🏔️</div>
+      <div class="logo-text"><h1>YatraYatri</h1><p>यात्रा यात्री · Investment Planner</p></div>
+    </a>
+    <div class="hdr-right">
+      <span class="badge-pill">📍 Panch Kedar · Char Dham · Kuari Pass</span>
+      <button class="btn-sm btn-reset" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-sm" onclick="window.print()">🖨️ Save PDF</button>
+    </div>
+  </div>
+</header>
+
+<main><div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">🏔️ Trek Tourism Business Intelligence</div>
+  <h2>Smart Investment Planner<br>for Your Trek Business</h2>
+  <p>Every figure, chart, alert and projection updates the moment you change any input. Know exactly where to invest, when you'll break even, and what risks to watch.</p>
+  <div class="trek-pills">
+    <span class="tpill on">🏔 Panch Kedar</span>
+    <span class="tpill on">🛕 Char Dham Yatra</span>
+    <span class="tpill on">⛺ Kuari Pass</span>
+    <span class="tpill">+ More routes (future)</span>
+  </div>
+</div>
+
+<!-- INVESTMENT INPUT + HEALTH SCORE -->
+<div class="section">
+  <div class="inv-card">
+    <div class="inv-label">Total Capital Available to Invest</div>
+    <div class="inv-field-wrap">
+      <span class="inv-sym">₹</span>
+      <input type="number" id="investAmt" value="500000" min="10000" step="10000" oninput="render()">
+    </div>
+    <div class="presets">
+      <button class="preset" onclick="setInv(100000)">₹1 Lakh</button>
+      <button class="preset" onclick="setInv(250000)">₹2.5 Lakh</button>
+      <button class="preset" onclick="setInv(500000)">₹5 Lakh</button>
+      <button class="preset" onclick="setInv(1000000)">₹10 Lakh</button>
+      <button class="preset" onclick="setInv(2000000)">₹20 Lakh</button>
+      <button class="preset" onclick="setInv(5000000)">₹50 Lakh</button>
+    </div>
+    <!-- HEALTH SCORE (updates dynamically based on all inputs) -->
+    <div class="health-wrap">
+      <div class="health-top">
+        <span class="health-label">Business Readiness Score</span>
+        <span>
+          <span class="health-score-num" id="healthNum" style="color:var(--green)">72/100</span>
+          <span class="health-grade" id="healthGrade" style="background:rgba(34,197,94,.12);color:var(--green)">Good</span>
+        </span>
+      </div>
+      <div class="health-bar-bg"><div class="health-bar-fill" id="healthBar" style="width:72%;background:var(--green)"></div></div>
+      <div class="health-tips" id="healthTips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TREK PORTFOLIO -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(249,115,22,.12)">🗺️</div>
+    <h3>Your Current Trek Portfolio</h3><div class="divider"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:.88rem;font-weight:700;color:var(--saffron);margin-bottom:8px;">🏔 Panch Kedar</div>
+      <div style="font-size:.71rem;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+        <span>📅 12–16 days</span><span>💰 ₹25,000–₹50,000/person</span><span>👥 Group: 8–15 people</span><span>🗻 Up to ~5,000m altitude</span><span>📆 Season: May–Jun, Sep–Oct</span>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:.88rem;font-weight:700;color:var(--saffron);margin-bottom:8px;">🛕 Char Dham Yatra</div>
+      <div style="font-size:.71rem;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+        <span>📅 10–14 days</span><span>💰 ₹30,000–₹60,000/person</span><span>👥 Group: 10–20 people</span><span>🗻 Up to ~3,900m altitude</span><span>📆 Season: May–Jun, Sep–Oct</span>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div style="font-size:.88rem;font-weight:700;color:var(--saffron);margin-bottom:8px;">⛺ Kuari Pass Trek</div>
+      <div style="font-size:.71rem;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+        <span>📅 5–7 days</span><span>💰 ₹10,000–₹20,000/person</span><span>👥 Group: 8–12 people</span><span>🗻 Up to ~3,640m altitude</span><span>📆 Season: Apr–Jun, Sep–Nov</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE ALERTS (fully dynamic) -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(239,68,68,.12)">🚨</div>
+    <h3>Live Business Alerts</h3>
+    <span class="alert-cnt" id="alertBadge" style="background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--primary)">0 alerts</span>
+    <div class="divider"></div>
+  </div>
+  <div class="alerts-panel">
+    <div id="alertsList"><div class="no-alerts">✅ Adjust sliders and inputs above to see personalized alerts.</div></div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(79,142,247,.12)">📊</div>
+    <h3>Investment Overview</h3><div class="divider"></div>
+  </div>
+  <div class="ov-grid">
+    <div class="chart-card">
+      <h4>Allocation Breakdown</h4>
+      <div class="chart-wrap">
+        <canvas id="donut"></canvas>
+        <div class="chart-center"><div class="chart-center-val" id="cc-total">₹5L</div><div class="chart-center-lbl">Total</div></div>
+      </div>
+      <div class="alloc-total">
+        <div class="alloc-num ok" id="allocPct">100%</div>
+        <div class="alloc-sub">Total Allocated</div>
+      </div>
+      <div class="ov-warn" id="ovWarn">⚠️ Over 100% — reduce some sliders.</div>
+    </div>
+    <div class="sc-grid">
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-ops)"></span>Operations</div><div class="sc-val" id="sc-ops">—</div><div class="sc-hint">Transport · Stay · Gear · Safety</div></div>
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-mkt)"></span>Marketing</div><div class="sc-val" id="sc-mkt">—</div><div class="sc-hint">Ads · Content · Branding</div></div>
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-hr)"></span>Human Resources</div><div class="sc-val" id="sc-hr">—</div><div class="sc-hint">Staff salary buffer</div></div>
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-legal)"></span>Legal & Compliance</div><div class="sc-val" id="sc-legal">—</div><div class="sc-hint">Licenses · Insurance · GST</div></div>
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-tech)"></span>Technology</div><div class="sc-val" id="sc-tech">—</div><div class="sc-hint">Website · Tools · Software</div></div>
+      <div class="sc"><div class="sc-label"><span class="sc-dot" style="background:var(--col-train)"></span>Training</div><div class="sc-val" id="sc-train">—</div><div class="sc-hint">Certifications · Safety</div></div>
+      <div class="sc sc-wide"><div class="sc-label"><span class="sc-dot" style="background:var(--col-emg)"></span>Emergency Fund 🆘</div><div class="sc-val" id="sc-emg">—</div><div class="sc-hint">Medical evacuation · Weather delays · Refunds · Off-season buffer</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ALLOCATION SLIDERS -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(249,115,22,.12)">🎯</div>
+    <h3>Adjust Investment Allocation</h3><div class="divider"></div>
+  </div>
+  <div class="info-box">💡 Drag sliders to reallocate. Every ₹ amount, chart, alert, health score, and projection updates instantly.</div>
+  <div class="alloc-grid">
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(249,115,22,.12)">🚌</div><div><div class="a-title">Operations & Logistics</div><div class="a-sub">Core business infrastructure</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-ops">—</div><div class="a-badge" id="bdg-ops" style="background:rgba(249,115,22,.12);color:var(--col-ops)">32%</div></div>
+      </div>
+      <input type="range" id="sl-ops" min="5" max="60" value="32" oninput="render()">
+      <div class="sl-labels"><span>5%</span><span>60%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Vehicle rentals / transport hire</span><span class="sub-val" id="s-ops-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">Hotel / homestay tie-ups (deposit)</span><span class="sub-val" id="s-ops-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Camping gear (tents, sleeping bags, mats)</span><span class="sub-val" id="s-ops-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Safety gear (helmets, ropes, harnesses)</span><span class="sub-val" id="s-ops-4">—</span></div>
+        <div class="sub-row"><span class="sub-name">Food supplies & kitchen equipment</span><span class="sub-val" id="s-ops-5">—</span></div>
+        <div class="sub-row"><span class="sub-name">Torch/headlamps, rain gear, misc</span><span class="sub-val" id="s-ops-6">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(59,130,246,.12)">📣</div><div><div class="a-title">Marketing & Branding</div><div class="a-sub">Customer acquisition engine</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-mkt">—</div><div class="a-badge" id="bdg-mkt" style="background:rgba(59,130,246,.12);color:var(--col-mkt)">18%</div></div>
+      </div>
+      <input type="range" id="sl-mkt" min="5" max="50" value="18" oninput="render()">
+      <div class="sl-labels"><span>5%</span><span>50%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Instagram / Facebook / YouTube Ads</span><span class="sub-val" id="s-mkt-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">Google Ads (search campaigns)</span><span class="sub-val" id="s-mkt-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Photography & drone videography</span><span class="sub-val" id="s-mkt-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Content tools (Canva Pro, editing software)</span><span class="sub-val" id="s-mkt-4">—</span></div>
+        <div class="sub-row"><span class="sub-name">Influencer collaborations (free trek slots)</span><span class="sub-val" id="s-mkt-5">—</span></div>
+        <div class="sub-row"><span class="sub-name">Offline flyers / travel fairs</span><span class="sub-val" id="s-mkt-6">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(34,197,94,.12)">👥</div><div><div class="a-title">Human Resources</div><div class="a-sub">3-month salary buffer for staff</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-hr">—</div><div class="a-badge" id="bdg-hr" style="background:rgba(34,197,94,.12);color:var(--col-hr)">22%</div></div>
+      </div>
+      <input type="range" id="sl-hr" min="5" max="50" value="22" oninput="render()">
+      <div class="sl-labels"><span>5%</span><span>50%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Trek guide salary buffer</span><span class="sub-val" id="s-hr-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">Marketing executive salary buffer</span><span class="sub-val" id="s-hr-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Finance/Admin person salary buffer</span><span class="sub-val" id="s-hr-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Cook & porter per-trek payments</span><span class="sub-val" id="s-hr-4">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(168,85,247,.12)">⚖️</div><div><div class="a-title">Legal & Compliance</div><div class="a-sub">Non-negotiable foundations</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-legal">—</div><div class="a-badge" id="bdg-legal" style="background:rgba(168,85,247,.12);color:var(--col-legal)">7%</div></div>
+      </div>
+      <input type="range" id="sl-legal" min="2" max="20" value="7" oninput="render()">
+      <div class="sl-labels"><span>2%</span><span>20%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Business registration (MSME / Pvt Ltd)</span><span class="sub-val" id="s-legal-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">GST registration + CA fees</span><span class="sub-val" id="s-legal-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Ministry of Tourism travel agent license</span><span class="sub-val" id="s-legal-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Group travel insurance (annual)</span><span class="sub-val" id="s-legal-4">—</span></div>
+        <div class="sub-row"><span class="sub-name">Trek permits pre-stock (forest/park)</span><span class="sub-val" id="s-legal-5">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(20,184,166,.12)">💻</div><div><div class="a-title">Technology & Tools</div><div class="a-sub">Digital infrastructure</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-tech">—</div><div class="a-badge" id="bdg-tech" style="background:rgba(20,184,166,.12);color:var(--col-tech)">6%</div></div>
+      </div>
+      <input type="range" id="sl-tech" min="2" max="20" value="6" oninput="render()">
+      <div class="sl-labels"><span>2%</span><span>20%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Website + booking system (one-time)</span><span class="sub-val" id="s-tech-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">Domain + hosting (annual)</span><span class="sub-val" id="s-tech-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Accounting software (Zoho Books / Tally)</span><span class="sub-val" id="s-tech-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">WhatsApp marketing / CRM tool</span><span class="sub-val" id="s-tech-4">—</span></div>
+        <div class="sub-row"><span class="sub-name">Razorpay / payment gateway setup</span><span class="sub-val" id="s-tech-5">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(234,179,8,.12)">🎓</div><div><div class="a-title">Training & Certifications</div><div class="a-sub">Safety & skill development</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-train">—</div><div class="a-badge" id="bdg-train" style="background:rgba(234,179,8,.12);color:var(--col-train)">5%</div></div>
+      </div>
+      <input type="range" id="sl-train" min="1" max="15" value="5" oninput="render()">
+      <div class="sl-labels"><span>1%</span><span>15%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Wilderness First Responder (WFR)</span><span class="sub-val" id="s-train-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">IMF / NIMAS guide certifications</span><span class="sub-val" id="s-train-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">High-altitude medical training</span><span class="sub-val" id="s-train-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Google/Meta Ads course for marketing staff</span><span class="sub-val" id="s-train-4">—</span></div>
+      </div>
+    </div>
+
+    <div class="alloc-card" style="border-color:rgba(239,68,68,.2)">
+      <div class="alloc-head">
+        <div class="alloc-left"><div class="a-icon-box" style="background:rgba(239,68,68,.12)">🆘</div><div><div class="a-title">Emergency Fund</div><div class="a-sub">Do NOT touch unless emergency</div></div></div>
+        <div class="alloc-right"><div class="a-inr" id="amt-emg">—</div><div class="a-badge" id="bdg-emg" style="background:rgba(239,68,68,.12);color:var(--col-emg)">10%</div></div>
+      </div>
+      <input type="range" id="sl-emg" min="5" max="30" value="10" oninput="render()">
+      <div class="sl-labels"><span>5%</span><span>30%</span></div>
+      <div class="sub-list">
+        <div class="sub-row"><span class="sub-name">Weather / route delay compensation</span><span class="sub-val" id="s-emg-1">—</span></div>
+        <div class="sub-row"><span class="sub-name">Medical evacuation fund (helicopter)</span><span class="sub-val" id="s-emg-2">—</span></div>
+        <div class="sub-row"><span class="sub-name">Customer refund buffer</span><span class="sub-val" id="s-emg-3">—</span></div>
+        <div class="sub-row"><span class="sub-name">Off-season lean period survival</span><span class="sub-val" id="s-emg-4">—</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOD COST REFERENCE -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(249,115,22,.12)">🍽️</div>
+    <h3>Food Cost Reference (Per Person Per Day)</h3><div class="divider"></div>
+  </div>
+  <div class="food-table">
+    <table>
+      <thead><tr><th>Meal</th><th>Items</th><th>Cost Range</th><th>Recommended Budget</th></tr></thead>
+      <tbody>
+        <tr><td><strong>🌅 Breakfast</strong></td><td style="color:var(--muted)">Poha / Upma / Paratha + Tea</td><td>₹60–₹100</td><td style="color:var(--green)"><strong>₹80</strong></td></tr>
+        <tr><td><strong>☀️ Lunch</strong></td><td style="color:var(--muted)">Dal + Rice + Sabzi + Roti</td><td>₹100–₹160</td><td style="color:var(--green)"><strong>₹130</strong></td></tr>
+        <tr><td><strong>🍪 Snacks</strong></td><td style="color:var(--muted)">Energy bars / Dry fruits / Chai</td><td>₹60–₹100</td><td style="color:var(--green)"><strong>₹80</strong></td></tr>
+        <tr><td><strong>🌙 Dinner</strong></td><td style="color:var(--muted)">Khichdi / Rajma-Chawal / Paneer + Soup</td><td>₹120–₹180</td><td style="color:var(--green)"><strong>₹150</strong></td></tr>
+        <tr style="background:rgba(34,197,94,.04)"><td><strong>Total / Day</strong></td><td style="color:var(--muted)">All 4 meals</td><td>₹340–₹540</td><td style="color:var(--green)"><strong>₹440 / person / day</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="info-box" style="margin-top:12px">💡 <strong>Your USP:</strong> All-inclusive food is a rare differentiator. Bulk procurement from local suppliers (Rishikesh, Joshimath) cuts food cost by 20–30%.</div>
+</div>
+
+<!-- STAFF PLANNER — editable salaries per person -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(34,197,94,.12)">👥</div>
+    <h3>Staff & Salary Planner</h3><div class="divider"></div>
+  </div>
+  <div class="info-box">💡 Set <strong>headcount AND salary per person</strong> — both fully editable. Payroll, HR runway, alerts and projection update instantly.</div>
+  <div class="staff-wrap">
+    <table>
+      <thead><tr><th>Role</th><th>Count</th><th>₹ / Person / Month</th><th>Monthly Total</th><th>Annual Total</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(249,115,22,.12)">🧗</div><div><div class="role-name">Trek Guide (Certified)</div><div class="role-desc">IMF/NIMAS certified · leads treks · safety responsible</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-guide" value="1" min="0" max="10" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-guide" value="25000" min="5000" step="1000" oninput="render()"></td>
+          <td><span class="sal-green" id="m-guide">₹25,000</span></td>
+          <td><span class="sal-white" id="y-guide">₹3,00,000</span></td>
+        </tr>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(59,130,246,.12)">📱</div><div><div class="role-name">Marketing Executive</div><div class="role-desc">Social media · ads · reels · content creation</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-mktg" value="1" min="0" max="5" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-mktg" value="22000" min="5000" step="1000" oninput="render()"></td>
+          <td><span class="sal-green" id="m-mktg">₹22,000</span></td>
+          <td><span class="sal-white" id="y-mktg">₹2,64,000</span></td>
+        </tr>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(168,85,247,.12)">📊</div><div><div class="role-name">Finance / Accounts Person</div><div class="role-desc">Bookkeeping · GST · invoices · expense tracking</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-fin" value="0" min="0" max="3" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-fin" value="18000" min="5000" step="1000" oninput="render()"></td>
+          <td><span class="sal-green" id="m-fin">₹0</span></td>
+          <td><span class="sal-white" id="y-fin">₹0</span></td>
+        </tr>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(20,184,166,.12)">🎧</div><div><div class="role-name">Customer Support / Coordinator</div><div class="role-desc">Inquiries · bookings · WhatsApp · follow-ups</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-cs" value="1" min="0" max="5" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-cs" value="15000" min="5000" step="1000" oninput="render()"></td>
+          <td><span class="sal-green" id="m-cs">₹15,000</span></td>
+          <td><span class="sal-white" id="y-cs">₹1,80,000</span></td>
+        </tr>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(234,179,8,.12)">👨‍🍳</div><div><div class="role-name">Cook / Chef</div><div class="role-desc">All 4 meals on trek · hire local per-trek recommended</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-cook" value="1" min="0" max="5" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-cook" value="15000" min="3000" step="1000" oninput="render()"></td>
+          <td><span class="sal-green" id="m-cook">₹15,000</span></td>
+          <td><span class="sal-white" id="y-cook">₹1,80,000</span></td>
+        </tr>
+        <tr>
+          <td><div class="role-cell"><div class="role-ico" style="background:rgba(239,68,68,.12)">🎒</div><div><div class="role-name">Porter / Support Staff</div><div class="role-desc">Carries gear · camp setup · contract per trek</div></div></div></td>
+          <td><input type="number" class="cnt-input" id="c-porter" value="2" min="0" max="20" oninput="render()"></td>
+          <td><input type="number" class="sal-input" id="sp-porter" value="6000" min="1000" step="500" oninput="render()"></td>
+          <td><span class="sal-green" id="m-porter">₹12,000</span></td>
+          <td><span class="sal-white" id="y-porter">₹1,44,000</span></td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>Total Monthly Payroll</strong></td>
+          <td></td>
+          <td><span class="sal-green" id="m-total">₹89,000</span></td>
+          <td><span id="y-total">₹10,68,000</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="staff-sum">
+    <div class="ss-card"><div class="ss-label">Total Headcount</div><div class="ss-val c-blue" id="ss-count">6</div></div>
+    <div class="ss-card"><div class="ss-label">Monthly Payroll</div><div class="ss-val c-green" id="ss-payroll">₹89,000</div></div>
+    <div class="ss-card"><div class="ss-label">HR Budget Runway</div><div class="ss-val c-saffron" id="ss-runway">~1.2 months</div></div>
+  </div>
+  <div class="warn-box" id="hrWarn">⚠️ HR budget covers less than 3 months of salaries. Start lean — hire cook & porter on a per-trek contract basis to cut fixed costs by ₹20,000–27,000/month.</div>
+</div>
+
+<!-- BREAK-EVEN + TREK PRESETS -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(14,165,233,.12)">📈</div>
+    <h3>Break-Even & Revenue Calculator</h3><div class="divider"></div>
+  </div>
+  <div class="be-grid">
+    <div class="be-card">
+      <h4>⚡ Quick Fill — Click Your Trek</h4>
+      <div class="trek-preset-btns">
+        <button class="tp-btn" id="tb-panch" onclick="applyTrek('panch')">🏔 Panch Kedar<br><small style="font-weight:400;color:var(--muted)">₹35K · 10 pax</small></button>
+        <button class="tp-btn" id="tb-char" onclick="applyTrek('char')">🛕 Char Dham<br><small style="font-weight:400;color:var(--muted)">₹45K · 12 pax</small></button>
+        <button class="tp-btn" id="tb-kuari" onclick="applyTrek('kuari')">⛺ Kuari Pass<br><small style="font-weight:400;color:var(--muted)">₹14K · 10 pax</small></button>
+        <button class="tp-btn" id="tb-custom" onclick="applyTrek('custom')" style="border-color:rgba(79,142,247,.3);color:var(--primary)">✏️ Custom<br><small style="font-weight:400;color:var(--muted)">Enter manually</small></button>
+      </div>
+      <h4 style="margin-bottom:13px">📊 Your Numbers</h4>
+      <div class="form-grp">
+        <label class="form-lbl">Package Price per Person (₹)</label>
+        <input type="number" class="form-inp" id="pkgPrice" value="25000" min="3000" step="500" oninput="render()">
+        <div class="form-hint">Panch Kedar ~₹35,000 · Char Dham ~₹45,000 · Kuari Pass ~₹14,000</div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Avg Group Size (persons/trip)</label>
+        <input type="number" class="form-inp" id="grpSize" value="10" min="2" max="50" oninput="render()">
+        <div class="form-hint">Typical: 8–15 for Himalayan treks</div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Variable Cost per Person per Trip (₹)</label>
+        <input type="number" class="form-inp" id="varCost" value="12000" min="2000" step="500" oninput="render()">
+        <div class="form-hint">Food + stay + transport + permits + porter share per head</div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Planned Trips per Month</label>
+        <input type="number" class="form-inp" id="tripsPM" value="2" min="1" max="20" oninput="render()">
+        <div class="form-hint">Quality over quantity — 2 great trips beat 5 average ones</div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Other Monthly Fixed Costs (₹)</label>
+        <input type="number" class="form-inp" id="otherFixed" value="10000" min="0" step="1000" oninput="render()">
+        <div class="form-hint">Office rent, ongoing software subscriptions, misc overheads</div>
+      </div>
+    </div>
+    <div class="be-card">
+      <h4>📤 Financial Projections (Live)</h4>
+      <div class="res-item"><span class="res-lbl">Revenue per Trip (Group)</span><span class="res-val" id="r-revtrip">—</span></div>
+      <div class="res-item"><span class="res-lbl">Variable Cost per Trip</span><span class="res-val" id="r-vartrip">—</span></div>
+      <div class="res-item"><span class="res-lbl">Gross Profit per Trip</span><span class="res-val pos" id="r-profit">—</span></div>
+      <div class="res-item"><span class="res-lbl">Gross Margin %</span><span class="res-val" id="r-margin">—</span></div>
+      <div class="res-item"><span class="res-lbl">Monthly Revenue (at planned trips)</span><span class="res-val" id="r-monrev">—</span></div>
+      <div class="res-item"><span class="res-lbl">Monthly Fixed Costs (payroll + other)</span><span class="res-val" id="r-fixed">—</span></div>
+      <div class="res-item"><span class="res-lbl">Monthly Net Profit</span><span class="res-val big" id="r-net">—</span></div>
+      <div class="res-item"><span class="res-lbl">Trips to Recover Full Investment</span><span class="res-val warn" id="r-betrips">—</span></div>
+      <div class="res-item"><span class="res-lbl">Months to Recover Investment</span><span class="res-val warn" id="r-bemonths">—</span></div>
+      <div class="res-item"><span class="res-lbl">Financial Runway (zero revenue)</span><span class="res-val" id="r-runway">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12-MONTH CASHFLOW PROJECTION -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(249,115,22,.12)">📅</div>
+    <h3>12-Month Cashflow Projection</h3><div class="divider"></div>
+  </div>
+  <div class="proj-controls">
+    <label class="toggle-wrap">
+      <label class="toggle"><input type="checkbox" id="toggleSeason" onchange="render()" checked><span class="toggle-slider"></span></label>
+      <span class="toggle-lbl">🌦️ Apply Himalayan Seasonality <small style="color:var(--muted)">(monsoon dip Jul–Aug, winter dip Nov–Feb)</small></span>
+    </label>
+  </div>
+  <div class="proj-chart-wrap"><canvas id="projChart"></canvas></div>
+  <div class="proj-table-wrap">
+    <table>
+      <thead>
+        <tr><th>Month</th><th>Trips</th><th>Revenue</th><th>Var Cost</th><th>Fixed Cost</th><th>Net Profit</th><th>Cumulative P&L</th></tr>
+      </thead>
+      <tbody id="projBody"></tbody>
+    </table>
+  </div>
+  <div class="info-box" style="margin-top:12px">
+    📌 Projection starts <strong>July 2026</strong>. <strong>Orange row</strong> = investment recovery month. Season: May/Sep/Oct = peak (100%), Jul/Aug = monsoon (40%), Dec–Feb = winter (10%).
+  </div>
+</div>
+
+<!-- KEY METRICS -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(168,85,247,.12)">⚡</div>
+    <h3>Key Business Metrics</h3><div class="divider"></div>
+  </div>
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="m-icon">💰</div><div class="m-val c-saffron" id="mk-inv">₹5L</div><div class="m-lbl">Total Investment</div></div>
+    <div class="metric-card"><div class="m-icon">⏱️</div><div class="m-val c-green" id="mk-runway">6.5 mo</div><div class="m-lbl">Financial Runway</div></div>
+    <div class="metric-card"><div class="m-icon">🎯</div><div class="m-val c-blue" id="mk-be">4 trips</div><div class="m-lbl">Break-Even Trips</div></div>
+    <div class="metric-card"><div class="m-icon">📈</div><div class="m-val c-green" id="mk-rev">₹5L/mo</div><div class="m-lbl">Monthly Revenue</div></div>
+    <div class="metric-card"><div class="m-icon">👥</div><div class="m-val c-blue" id="mk-team">6</div><div class="m-lbl">Team Size</div></div>
+    <div class="metric-card"><div class="m-icon">💯</div><div class="m-val c-green" id="mk-score">72/100</div><div class="m-lbl">Readiness Score</div></div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS (dynamically highlighted) -->
+<div class="section">
+  <div class="sec-title">
+    <div class="sec-icon" style="background:rgba(249,115,22,.12)">💡</div>
+    <h3>Smart Recommendations for YatraYatri</h3><div class="divider"></div>
+  </div>
+  <div class="rec-grid">
+
+    <div class="rec-card" id="rec-phase1">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(249,115,22,.12)">🚀</div><div class="rec-title">Phase 1: Foundation (Month 1–2)</div></div>
+      <ul class="rec-ul">
+        <li>Register as <strong>Sole Proprietorship first</strong> — cheapest; upgrade to Pvt Ltd once revenue crosses ₹10L/year</li>
+        <li>Get <strong>GST registration</strong> — builds credibility and is mandatory above ₹20L/year revenue</li>
+        <li>Open a <strong>dedicated business bank account</strong> from day one — never mix with personal money</li>
+        <li>Set up <strong>Razorpay</strong> — collect 30–50% advance at booking via payment link</li>
+        <li>Build a basic <strong>website with itinerary, photos & booking enquiry form</strong></li>
+        <li>Get at least <strong>1 WFR-certified guide</strong> before your first commercial trek</li>
+      </ul>
+    </div>
+
+    <div class="rec-card" id="rec-marketing">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(59,130,246,.12)">📣</div><div class="rec-title">Marketing Strategy</div><span class="rec-badge" id="rb-mkt"></span></div>
+      <ul class="rec-ul">
+        <li><strong>Instagram Reels are your #1 weapon</strong> — post trek vlogs, food reveals, sunrise shots, client testimonials</li>
+        <li>Run <strong>Meta Ads</strong> targeting 22–38 yr olds in metros (Delhi, Pune, Bengaluru, Mumbai)</li>
+        <li>Partner with <strong>2–3 micro-influencers</strong> — offer free trek slots in exchange for content</li>
+        <li>Optimize <strong>Google Business Profile</strong> — free customers via Google Maps search</li>
+        <li>Build a <strong>WhatsApp broadcast list</strong> — message all past inquirers monthly with new dates</li>
+        <li>List on <strong>Thrillophilia, Tripoto, HolidayIQ</strong> — zero upfront cost, reach lakhs of trekkers</li>
+      </ul>
+    </div>
+
+    <div class="rec-card" id="rec-hiring">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(34,197,94,.12)">👥</div><div class="rec-title">Smart Hiring Strategy</div><span class="rec-badge" id="rb-hr"></span></div>
+      <ul class="rec-ul">
+        <li><strong>Start lean:</strong> You + 1 guide + 1 marketing person is enough for Phase 1</li>
+        <li>For finance: hire a <strong>part-time freelance CA</strong> at ₹5,000–8,000/month — not full-time</li>
+        <li><strong>Cook & porter: hire per-trek</strong> from local areas (Rishikesh, Joshimath, Uttarkashi)</li>
+        <li>Handle customer support yourself via <strong>WhatsApp Business</strong> until you hit 50+ inquiries/month</li>
+        <li>Add 2nd guide <strong>only when</strong> you consistently have 3+ trips booked simultaneously</li>
+      </ul>
+    </div>
+
+    <div class="rec-card" id="rec-legal">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(168,85,247,.12)">⚖️</div><div class="rec-title">Legal Must-Haves</div><span class="rec-badge" id="rb-legal"></span></div>
+      <ul class="rec-ul">
+        <li><strong>Participant waiver/indemnity form</strong> — signed before every trek (lawyer draft: ₹2,000–5,000 one-time)</li>
+        <li><strong>Group travel insurance covering medical + evacuation</strong> for every participant, every trip</li>
+        <li><strong>Forest/national park permits</strong> — book 2+ weeks in advance during peak season</li>
+        <li>Ministry of Tourism <strong>Approved Travel Agent License</strong> — major credibility boost (₹3,000–8,000)</li>
+        <li>Clear written <strong>cancellation & refund policy</strong> on your website and every booking confirmation</li>
+      </ul>
+    </div>
+
+    <div class="rec-card">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(239,68,68,.12)">⚠️</div><div class="rec-title">Risk Factors to Plan For</div></div>
+      <ul class="rec-ul">
+        <li><strong>Monsoon (Jul–Sept):</strong> Char Dham & Panch Kedar may close — Kuari Pass is safer</li>
+        <li><strong>Medical emergency at altitude:</strong> Helicopter = ₹1–3 lakhs. Insurance + emergency fund are critical</li>
+        <li><strong>Last-minute cancellations:</strong> Enforce 50% advance at booking, balance 15 days before trek</li>
+        <li><strong>Landslides/road blocks:</strong> Always plan an alternate route + 1-day buffer in itinerary</li>
+        <li><strong>Off-season (Nov–Feb):</strong> Plan corporate outings, school treks, yoga retreats to stay alive</li>
+        <li><strong>Government group size caps</strong> at Kedarnath/Badrinath change — always verify before booking</li>
+      </ul>
+    </div>
+
+    <div class="rec-card">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(20,184,166,.12)">📊</div><div class="rec-title">Financial Best Practices</div></div>
+      <ul class="rec-ul">
+        <li>Collect <strong>30–50% advance at booking,</strong> balance 15 days before trek starts</li>
+        <li><strong>Budget each trek individually</strong> before confirming: food + transport + stay + permits + guide + porter</li>
+        <li>Track every rupee on <strong>Zoho Books</strong> (free plan) or a shared Google Sheet initially</li>
+        <li>Price at <strong>35–45% above cost</strong> to cover fixed overheads and build profit margin</li>
+        <li><strong>Reinvest 40–50% of early profits</strong> into marketing for the first 6 months</li>
+        <li>File <strong>GST returns quarterly</strong> — builds corporate credibility even if below threshold</li>
+      </ul>
+    </div>
+
+    <div class="rec-card">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(234,179,8,.12)">🌱</div><div class="rec-title">Growth Roadmap (0–18 Months)</div></div>
+      <ul class="rec-ul">
+        <li><strong>Month 1–3:</strong> 2 treks/month, collect Google + Instagram reviews aggressively</li>
+        <li><strong>Month 4–6:</strong> Add 1 new route, target corporate weekend treks</li>
+        <li><strong>Month 6–12:</strong> Scale to 4 treks/month, hire 2nd guide, launch referral program</li>
+        <li><strong>Year 2:</strong> Partner with schools/colleges, target international trekkers via SEO</li>
+        <li>Launch <strong>premium packages</strong> at 25–30% markup: private group, custom itinerary, photographer</li>
+        <li>List on <strong>Airbnb Experiences</strong> — great access to international tourists near Rishikesh</li>
+      </ul>
+    </div>
+
+    <div class="rec-card">
+      <div class="rec-head"><div class="rec-ico" style="background:rgba(249,115,22,.12)">🍽️</div><div class="rec-title">Your Biggest USP: Food Experience</div></div>
+      <ul class="rec-ul">
+        <li><strong>All-inclusive food is your #1 differentiator</strong> — most competitors don't include all 4 meals</li>
+        <li>Brand it: <strong>"YatraYatri Meals"</strong> — hot, homestyle food at altitude. Feature in every reel</li>
+        <li>Budget ₹440–550/person/day for food — fully coverable within your package price at good margins</li>
+        <li><strong>Build supplier relationships</strong> in Rishikesh, Joshimath — bulk buying saves 20–30%</li>
+        <li>Offer <strong>Jain / vegan / diabetic options</strong> on request — broader audience, especially families</li>
+        <li><strong>Food quality = 5-star reviews = free word-of-mouth</strong> = your lowest-cost marketing channel</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+</div></main>
+
+<footer>
+  <div class="wrap">
+    <p>🏔️ YatraYatri Business Investment Planner — Built for smart trek entrepreneurs</p>
+    <p style="margin-top:6px">Figures are indicative estimates. Consult a CA for precise financial planning. ·
+      <a href="https://www.instagram.com/yatrayatri.in/" target="_blank" rel="noopener" style="color:var(--saffron);text-decoration:none">@yatrayatri.in</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════
+   CONFIG
+═══════════════════════════════ */
+const CATS = ['ops','mkt','hr','legal','tech','train','emg'];
+const CC = {ops:'#f97316',mkt:'#3b82f6',hr:'#22c55e',legal:'#a855f7',tech:'#14b8a6',train:'#eab308',emg:'#ef4444'};
+const CL = {ops:'Operations',mkt:'Marketing',hr:'Human Resources',legal:'Legal',tech:'Technology',train:'Training',emg:'Emergency'};
+const SUBS = {
+  ops:  [.30,.25,.20,.12,.08,.05],
+  mkt:  [.30,.18,.20,.10,.12,.10],
+  hr:   [.40,.28,.20,.12],
+  legal:[.29,.14,.23,.20,.14],
+  tech: [.50,.10,.20,.12,.08],
+  train:[.45,.30,.15,.10],
+  emg:  [.30,.40,.20,.10]
+};
+const TREK_PRESETS = {
+  panch: {price:35000,group:10,varCost:14000,trips:2},
+  char:  {price:45000,group:12,varCost:17000,trips:1},
+  kuari: {price:14000,group:10,varCost:6000, trips:3}
+};
+// Himalayan season multipliers [Jan–Dec]
+const SEASON = [.10,.10,.30,.80,1.0,.90,.40,.40,1.0,.90,.50,.10];
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ROLES = ['guide','mktg','fin','cs','cook','porter'];
+
+/* ═══════════════════════════════
+   CHARTS
+═══════════════════════════════ */
+let donutChart = null, projChart = null;
+
+/* ═══════════════════════════════
+   HELPERS
+═══════════════════════════════ */
+const $ = id => document.getElementById(id);
+const inv  = () => parseFloat($('investAmt').value) || 500000;
+const pct  = c  => parseFloat($('sl-'+c).value)   || 0;
+const cnt  = r  => parseInt($('c-'+r).value)       || 0;
+const salPP= r  => parseFloat($('sp-'+r).value)    || 1;
+
+function inr(n) {
+  n = Math.round(n);
+  const a = Math.abs(n), s = n < 0 ? '-' : '';
+  if (a >= 10000000) return s+'₹'+(a/10000000).toFixed(1)+'Cr';
+  if (a >= 100000)   return s+'₹'+(a/100000).toFixed(1)+'L';
+  if (a >= 1000)     return s+'₹'+(a/1000).toFixed(0)+'K';
+  return s+'₹'+a.toLocaleString('en-IN');
+}
+function inrF(n){ return '₹'+Math.round(n).toLocaleString('en-IN'); }
+
+function setP(id, val) {
+  const el = $(id); if (!el) return;
+  if (el.textContent === val) return;
+  el.textContent = val;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+/* ═══════════════════════════════
+   TREK QUICK-FILL
+═══════════════════════════════ */
+let activeTrekKey = null;
+function applyTrek(key) {
+  activeTrekKey = key;
+  ['panch','char','kuari','custom'].forEach(k => {
+    const b = $('tb-'+k);
+    if (!b) return;
+    b.classList.remove('active','active-custom');
+    if (k === key) b.classList.add(key === 'custom' ? 'active-custom' : 'active');
+  });
+  if (key === 'custom' || !TREK_PRESETS[key]) return;
+  const p = TREK_PRESETS[key];
+  $('pkgPrice').value = p.price;
+  $('grpSize').value  = p.group;
+  $('varCost').value  = p.varCost;
+  $('tripsPM').value  = p.trips;
+  render();
+}
+
+/* ═══════════════════════════════
+   HEALTH SCORE
+═══════════════════════════════ */
+function calcScore(m) {
+  let s = 0;
+  if (m.emgPct >= 12) s += 15; else if (m.emgPct >= 8) s += 8;
+  if (m.hrRun >= 4)   s += 20; else if (m.hrRun >= 3) s += 14; else if (m.hrRun >= 2) s += 7;
+  if (m.margin >= 45) s += 15; else if (m.margin >= 30) s += 9; else if (m.margin >= 20) s += 4;
+  if (m.beM > 0 && m.beM <= 4)  s += 20;
+  else if (m.beM <= 8)  s += 12;
+  else if (m.beM <= 12) s += 6;
+  if (pct('legal') >= 7) s += 10; else if (pct('legal') >= 4) s += 5;
+  if (pct('mkt') >= 18)  s += 10; else if (pct('mkt') >= 12)  s += 5;
+  if (pct('train') >= 5) s += 10; else if (pct('train') >= 2)  s += 5;
+  return Math.min(Math.round(s), 100);
+}
+
+function renderHealth(score, m) {
+  let col, grade, gradeBg;
+  if (score >= 80)      { col='var(--green)';  grade='Excellent'; gradeBg='rgba(34,197,94,.12)'; }
+  else if (score >= 60) { col='var(--primary)'; grade='Good';      gradeBg='rgba(79,142,247,.12)'; }
+  else if (score >= 40) { col='var(--yellow)';  grade='Fair';      gradeBg='rgba(234,179,8,.12)'; }
+  else                  { col='var(--red)';     grade='Needs Work'; gradeBg='rgba(239,68,68,.12)'; }
+
+  $('healthNum').textContent = score + '/100';
+  $('healthNum').style.color = col;
+  $('healthBar').style.width = score + '%';
+  $('healthBar').style.background = col;
+  $('healthGrade').textContent = grade;
+  $('healthGrade').style.background = gradeBg;
+  $('healthGrade').style.color = col;
+
+  const tips = [];
+  if (m.emgPct < 8)       tips.push({bg:'rgba(239,68,68,.15)',c:'var(--red)',   t:'🆘 Low emergency'});
+  if (m.hrRun < 2 && m.pay > 0) tips.push({bg:'rgba(239,68,68,.15)',c:'var(--red)', t:'👥 HR runway critical'});
+  if (m.margin < 25)      tips.push({bg:'rgba(234,179,8,.12)', c:'var(--yellow)',t:'📉 Thin margin'});
+  if (pct('legal') < 4)  tips.push({bg:'rgba(239,68,68,.15)',c:'var(--red)',   t:'⚖️ Legal too low'});
+  if (pct('train') < 3)  tips.push({bg:'rgba(234,179,8,.12)', c:'var(--yellow)',t:'🎓 Training low'});
+  if (pct('mkt') >= 18)  tips.push({bg:'rgba(34,197,94,.1)',  c:'var(--green)', t:'📣 Marketing ✓'});
+  if (m.hrRun >= 3)      tips.push({bg:'rgba(34,197,94,.1)',  c:'var(--green)', t:'👥 HR stable ✓'});
+  if (m.margin >= 40)    tips.push({bg:'rgba(34,197,94,.1)',  c:'var(--green)', t:'📈 Great margin ✓'});
+  if (m.beM > 0 && m.beM <= 5) tips.push({bg:'rgba(34,197,94,.1)', c:'var(--green)', t:'🎯 Fast break-even ✓'});
+
+  $('healthTips').innerHTML = tips.map(t =>
+    `<span class="h-tip" style="background:${t.bg};color:${t.c}">${t.t}</span>`
+  ).join('');
+
+  setP('mk-score', score + '/100');
+}
+
+/* ═══════════════════════════════
+   ALERTS
+═══════════════════════════════ */
+function renderAlerts(m) {
+  const al = [];
+  const totalPct = CATS.reduce((s,c) => s + pct(c), 0);
+
+  // Errors (red)
+  if (m.emgPct < 8)
+    al.push({l:'err',i:'🆘',msg:`Emergency fund is only <strong>${m.emgPct.toFixed(0)}%</strong>. Raise to at least 10% — helicopter evacuation alone costs ₹1–3 lakhs.`});
+  if (m.hrRun < 2 && m.pay > 0)
+    al.push({l:'err',i:'💸',msg:`HR budget covers only <strong>${m.hrRun.toFixed(1)} months</strong> of salaries. Staff won't stay without pay.`});
+  if (pct('legal') < 4)
+    al.push({l:'err',i:'⚖️',msg:`Legal allocation is <strong>${pct('legal').toFixed(0)}%</strong> — critically low. Registration, permits & insurance are non-negotiable.`});
+
+  // Warnings (yellow)
+  if (m.margin < 25 && m.margin >= 0)
+    al.push({l:'warn',i:'📉',msg:`Gross margin is <strong>${m.margin}%</strong>. Below 25% is unsustainable. Raise prices or reduce variable costs.`});
+  if (m.beM > 12 && m.beM !== 9999)
+    al.push({l:'warn',i:'⏳',msg:`Investment recovery takes <strong>${m.beM} months</strong>. Aim for under 8 months — increase trips/month or raise prices.`});
+  if (pct('train') < 3)
+    al.push({l:'warn',i:'🎓',msg:`Training is only <strong>${pct('train').toFixed(0)}%</strong>. WFR certification costs ₹15,000–25,000 — skipping safety is a liability risk.`});
+  if (pct('mkt') < 10)
+    al.push({l:'warn',i:'📣',msg:`Marketing is only <strong>${pct('mkt').toFixed(0)}%</strong> — too low for a new business. Customers won't find you without visibility.`});
+  if (totalPct < 93)
+    al.push({l:'warn',i:'📊',msg:`Only <strong>${totalPct.toFixed(0)}%</strong> allocated — ₹${Math.round((1-totalPct/100)*inv()).toLocaleString('en-IN')} is sitting idle.`});
+  if (totalPct > 107)
+    al.push({l:'warn',i:'📊',msg:`Over-allocated by <strong>${(totalPct-100).toFixed(0)}%</strong>. Reduce some categories to reach 100%.`});
+  if (m.pay === 0)
+    al.push({l:'warn',i:'👥',msg:`No staff headcount entered. Add at least 1 guide to get realistic payroll and runway figures.`});
+
+  // Successes (green)
+  if (m.margin >= 45)
+    al.push({l:'ok',i:'✅',msg:`Excellent margin of <strong>${m.margin}%</strong>! Pricing is healthy and sustainable.`});
+  if (m.hrRun >= 4)
+    al.push({l:'ok',i:'✅',msg:`HR budget covers <strong>${m.hrRun.toFixed(1)} months</strong> — solid buffer for slow booking months.`});
+  if (m.beM > 0 && m.beM <= 5)
+    al.push({l:'ok',i:'🎉',msg:`Break-even in just <strong>${m.beM} months</strong>! Focus on filling those trip slots.`});
+  if (m.emgPct >= 12)
+    al.push({l:'ok',i:'✅',msg:`Emergency fund at <strong>${m.emgPct.toFixed(0)}%</strong> — well-prepared for the unexpected.`});
+
+  const list = $('alertsList'), badge = $('alertBadge');
+  const nCrit = al.filter(a => a.l !== 'ok').length;
+  badge.textContent = nCrit > 0 ? nCrit + ' alert' + (nCrit > 1 ? 's' : '') : al.length + ' tips';
+  const isRed = nCrit > 0;
+  badge.style.background = isRed ? 'rgba(239,68,68,.12)' : 'rgba(79,142,247,.12)';
+  badge.style.borderColor = isRed ? 'rgba(239,68,68,.25)' : 'rgba(79,142,247,.2)';
+  badge.style.color = isRed ? 'var(--red)' : 'var(--primary)';
+
+  if (!al.length) {
+    list.innerHTML = '<div class="no-alerts">✅ All metrics look great! Keep fine-tuning your plan.</div>';
+  } else {
+    list.innerHTML = al.map(a =>
+      `<div class="a-item ${a.l}"><span class="a-ico">${a.i}</span><span>${a.msg}</span></div>`
+    ).join('');
+  }
+
+  // Highlight recommendation cards
+  $('rec-legal').classList.toggle('highlighted', pct('legal') < 4);
+  $('rec-hiring').classList.toggle('highlighted', m.hrRun < 2 && m.pay > 0);
+  $('rec-marketing').classList.toggle('highlighted', pct('mkt') < 10);
+
+  // Rec badges
+  const mb = $('rb-mkt');
+  if (mb) { mb.textContent = pct('mkt') < 10 ? '⚠️ Increase' : '✓ On track'; mb.className = 'rec-badge ' + (pct('mkt') < 10 ? 'urgent' : 'good'); }
+  const hb = $('rb-hr');
+  if (hb) { hb.textContent = (m.hrRun < 2 && m.pay > 0) ? '⚠️ Critical' : '✓ OK'; hb.className = 'rec-badge ' + ((m.hrRun < 2 && m.pay > 0) ? 'urgent' : 'good'); }
+  const lb = $('rb-legal');
+  if (lb) { lb.textContent = pct('legal') < 5 ? '⚠️ Too Low' : '✓ Allocated'; lb.className = 'rec-badge ' + (pct('legal') < 5 ? 'urgent' : 'good'); }
+}
+
+/* ═══════════════════════════════
+   DONUT CHART
+═══════════════════════════════ */
+function initDonut() {
+  donutChart = new Chart($('donut').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: CATS.map(c => CL[c]),
+      datasets: [{ data: CATS.map(c => pct(c)), backgroundColor: CATS.map(c => CC[c]+'bb'), borderColor: CATS.map(c => CC[c]), borderWidth: 1.5, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw}%  —  ${inrF(inv()*ctx.raw/100)}` },
+          backgroundColor:'rgba(10,18,30,.96)',borderColor:'rgba(255,255,255,.08)',borderWidth:1,
+          titleColor:'#fff',bodyColor:'#8899b5',padding:10,cornerRadius:8 }
+      },
+      animation: { duration: 350, easing: 'easeInOutQuart' }
+    }
+  });
+}
+
+/* ═══════════════════════════════
+   12-MONTH PROJECTION
+═══════════════════════════════ */
+function initProjChart() {
+  projChart = new Chart($('projChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: [], datasets: [
+      { label:'Revenue',    data:[], backgroundColor:'rgba(34,197,94,.45)', borderColor:'#22c55e', borderWidth:1.5, borderRadius:4, order:2 },
+      { label:'Total Cost', data:[], backgroundColor:'rgba(239,68,68,.4)',  borderColor:'#ef4444', borderWidth:1.5, borderRadius:4, order:2 },
+      { label:'Cumulative P&L', data:[], type:'line', borderColor:'#f97316', backgroundColor:'rgba(249,115,22,.07)',
+        borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#f97316', tension:.35, order:1, yAxisID:'y2' }
+    ]},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#7a90b5',font:{family:'Poppins',size:11},boxWidth:12,padding:14}},
+        tooltip:{backgroundColor:'rgba(10,18,30,.96)',borderColor:'rgba(255,255,255,.08)',borderWidth:1,
+          titleColor:'#fff',bodyColor:'#8899b5',padding:10,cornerRadius:8,
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${inrF(ctx.raw)}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a90b5',font:{family:'Poppins',size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a90b5',font:{family:'Poppins',size:10},callback:v=>inr(v)},beginAtZero:true},
+        y2:{position:'right',grid:{display:false},ticks:{color:'#f97316',font:{family:'Poppins',size:10},callback:v=>inr(v)}}
+      }
+    }
+  });
+}
+
+function renderProjection(revT, varT, tripsPM, monthlyFixed) {
+  const useSeason = $('toggleSeason').checked;
+  const sm = new Date().getMonth(), sy = new Date().getFullYear();
+  let cumul = -inv(), beHit = false;
+  const labels=[], revD=[], costD=[], cumulD=[], rows=[];
+
+  for (let i = 0; i < 12; i++) {
+    const mi = (sm + i) % 12;
+    const yr = sy + Math.floor((sm + i) / 12);
+    const mult = useSeason ? SEASON[mi] : 1;
+    const trips = useSeason ? Math.max(Math.round(tripsPM * mult), mult > 0.15 ? 1 : 0) : tripsPM;
+    const rev = revT * trips;
+    const vc  = varT * trips;
+    const tc  = vc + monthlyFixed;
+    const net = rev - tc;
+    const prev = cumul;
+    cumul += net;
+    const isBE = !beHit && prev < 0 && cumul >= 0;
+    if (isBE) beHit = true;
+    const lbl = MN[mi] + " '" + String(yr).slice(-2);
+    labels.push(lbl); revD.push(rev); costD.push(tc); cumulD.push(cumul);
+    rows.push({lbl, trips, rev, vc, mf:monthlyFixed, net, cumul, isBE});
+  }
+
+  if (donutChart) { donutChart.data.datasets[0].data = CATS.map(c => pct(c)); donutChart.update('none'); }
+
+  if (projChart) {
+    projChart.data.labels = labels;
+    projChart.data.datasets[0].data = revD;
+    projChart.data.datasets[1].data = costD;
+    projChart.data.datasets[2].data = cumulD;
+    projChart.update();
+  }
+
+  $('projBody').innerHTML = rows.map(r => {
+    const nc = r.net >= 0 ? 'proj-pos' : 'proj-neg';
+    const cc = r.cumul >= 0 ? 'proj-pos' : 'proj-neg';
+    const badge = r.isBE ? '<span class="proj-be-badge">⭐ Recovered!</span>' : '';
+    return `<tr class="${r.isBE ? 'proj-be-row' : ''}">
+      <td>${r.lbl}${badge}</td>
+      <td>${r.trips}</td>
+      <td>${inrF(r.rev)}</td>
+      <td style="color:var(--muted)">${inrF(r.vc)}</td>
+      <td style="color:var(--muted)">${inrF(r.mf)}</td>
+      <td class="${nc}">${inrF(r.net)}</td>
+      <td class="${cc}">${inrF(r.cumul)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════
+   MAIN RENDER
+═══════════════════════════════ */
+function render() {
+  const I = inv();
+
+  // 1. Allocation cards
+  CATS.forEach(c => {
+    const p = pct(c), amt = I * p / 100;
+    const sl = $('sl-'+c);
+    const mn = parseFloat(sl.min), mx = parseFloat(sl.max);
+    sl.style.background = `linear-gradient(to right,${CC[c]} 0%,${CC[c]} ${((p-mn)/(mx-mn))*100}%,rgba(255,255,255,.08) ${((p-mn)/(mx-mn))*100}%,rgba(255,255,255,.08) 100%)`;
+    setP('amt-'+c, inrF(amt));
+    $('bdg-'+c).textContent = p + '%';
+    setP('sc-'+c, inrF(amt));
+    SUBS[c].forEach((prop, i) => setP('s-'+c+'-'+(i+1), inrF(amt*prop)));
+  });
+
+  // 2. Total pct
+  const totalPct = CATS.reduce((s,c) => s+pct(c), 0);
+  const pe = $('allocPct');
+  pe.textContent = totalPct.toFixed(0) + '%';
+  pe.className = 'alloc-num ' + (totalPct > 105 ? 'over' : totalPct < 95 ? 'warn' : 'ok');
+  $('ovWarn').classList.toggle('show', totalPct > 105);
+  setP('cc-total', inr(I));
+
+  // 3. Staff
+  let pay = 0, heads = 0;
+  ROLES.forEach(r => {
+    const n = cnt(r), s = salPP(r), m = n * s;
+    setP('m-'+r, inrF(m)); setP('y-'+r, inrF(m*12));
+    pay += m; heads += n;
+  });
+  setP('m-total', inrF(pay)); setP('y-total', inrF(pay*12));
+  setP('ss-count', heads); setP('ss-payroll', inrF(pay));
+  const hrBudget = I * pct('hr') / 100;
+  const hrRun = pay > 0 ? hrBudget / pay : 99;
+  setP('ss-runway', '~' + hrRun.toFixed(1) + ' months');
+  $('hrWarn').style.display = (hrRun < 3 && pay > 0) ? 'block' : 'none';
+
+  // 4. Break-even
+  const pkg   = parseFloat($('pkgPrice').value) || 25000;
+  const grp   = parseFloat($('grpSize').value)  || 10;
+  const varPP = parseFloat($('varCost').value)   || 12000;
+  const tpm   = parseFloat($('tripsPM').value)   || 2;
+  const oFix  = parseFloat($('otherFixed').value)|| 10000;
+
+  const revT  = pkg * grp;
+  const varT  = varPP * grp;
+  const profT = revT - varT;
+  const margin = revT > 0 ? Math.round((profT/revT)*100) : 0;
+  const mFixed = pay + oFix;
+  const mRev   = revT * tpm;
+  const mNet   = mRev - varT*tpm - mFixed;
+  const beTrips= profT > 0 ? Math.ceil(I / profT) : 0;
+  const beM    = mNet > 0 ? Math.ceil(I / mNet) : 9999;
+  const runway = mFixed > 0 ? (I / mFixed).toFixed(1) : '∞';
+
+  setP('r-revtrip', inrF(revT));
+  setP('r-vartrip', inrF(varT));
+  setP('r-profit',  inrF(profT));
+  setP('r-margin',  margin + '%');
+  setP('r-monrev',  inrF(mRev));
+  setP('r-fixed',   inrF(mFixed));
+  setP('r-net',     inrF(mNet));
+  const netEl = $('r-net');
+  if (netEl) netEl.className = 'res-val big ' + (mNet >= 0 ? 'pos' : 'neg');
+  setP('r-betrips',  beTrips > 0 ? beTrips + ' trips' : 'N/A');
+  setP('r-bemonths', mNet > 0 ? '~'+beM+' months' : (mNet === 0 ? '∞' : '⚠️ Not yet profitable'));
+  setP('r-runway',   '~'+runway+' months');
+
+  // 5. Metrics
+  setP('mk-inv',    inr(I));
+  setP('mk-runway', runway+' mo');
+  setP('mk-be',     beTrips > 0 ? beTrips+' trips' : 'N/A');
+  setP('mk-rev',    inr(mRev)+'/mo');
+  setP('mk-team',   heads);
+
+  // 6. Health + Alerts
+  const m = { emgPct: pct('emg'), hrRun, margin, beM, pay };
+  const score = calcScore(m);
+  renderHealth(score, m);
+  renderAlerts(m);
+
+  // 7. 12-month projection
+  renderProjection(revT, varT, tpm, mFixed);
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+function setInv(amount) { $('investAmt').value = amount; render(); }
+
+function resetAll() {
+  $('investAmt').value = 500000;
+  const dS = {ops:32,mkt:18,hr:22,legal:7,tech:6,train:5,emg:10};
+  const dSP = {guide:25000,mktg:22000,fin:18000,cs:15000,cook:15000,porter:6000};
+  const dC  = {guide:1,mktg:1,fin:0,cs:1,cook:1,porter:2};
+  CATS.forEach(c => $('sl-'+c).value = dS[c]);
+  ROLES.forEach(r => { $('sp-'+r).value = dSP[r]; $('c-'+r).value = dC[r]; });
+  $('pkgPrice').value=25000; $('grpSize').value=10; $('varCost').value=12000;
+  $('tripsPM').value=2; $('otherFixed').value=10000;
+  activeTrekKey = null;
+  ['panch','char','kuari','custom'].forEach(k => { const b=$('tb-'+k); if(b){b.classList.remove('active','active-custom');} });
+  render();
+}
+
+['pkgPrice','grpSize','varCost','tripsPM','otherFixed'].forEach(id => {
+  const el = $(id);
+  if (el) { el.addEventListener('input', render); el.addEventListener('change', render); }
+});
+$('investAmt').addEventListener('input', render);
+$('investAmt').addEventListener('change', render);
+
+window.addEventListener('DOMContentLoaded', () => { initDonut(); initProjChart(); render(); });
+</script>
+</body>
+</html>
